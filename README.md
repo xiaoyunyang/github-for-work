@@ -2,6 +2,8 @@
 
 > serverless webapp that works without Internet.
 
+Needs to run on Internet Explorer 11.
+
 ## Built with
 
 * [`React.js`](https://github.com/facebook/react/releases) v15.6.2
