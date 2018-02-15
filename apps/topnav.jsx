@@ -42,6 +42,7 @@ var TopNav = React.createClass({
          <li><a className="subheader">Apps</a></li>
          <li><a className="waves-effect" href="/apps/100days.html">100 Days Calculator</a></li>
         <li><a className="waves-effect" href="/apps/url-gen.html">URL Generator</a></li>
+        <li><a className="waves-effect" href="/apps/avail-viewer.html">Avail Viewer</a></li>
        </ul>
      </div>)
 
