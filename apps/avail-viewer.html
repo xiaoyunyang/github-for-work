@@ -32,9 +32,10 @@
           </p>
           <p class="blue-grey-text text-lighten-1">See source code
             <a href="https://github.com/xiaoyunyang/xiaoyunyang.github.io/tree/master/tools/100days.html">here</a>
-        </p>
+          </p>
+        </div>
+        <div class="footer-copyright blue-grey lighten-5"></div>
       </div>
-      <div class="footer-copyright blue-grey lighten-5"></div>
     </div>
   </footer>
   <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
@@ -45,15 +46,20 @@
     var App = React.createClass({
       getInitialState: function() {
         return {
-          options: ['A1B', 'A4W', 'S6G', 'S8G', 'S9G'],
-          selectedTags: ['A1B', 'A4W'],
-          yearChoices: ['2', '5', '10'],
-          selectedSpan: '2',
-        }
+          tags: this.props.hulls,
+          selectedTags: [this.props.hulls[0]],
+          intervalChoices: this.props.intervals,
+          selectedInterval: this.props.intervals[0],
+          projects: this.props.projects,
+          selectedProject: this.props.projects[0]
+        };
       },
       componentDidMount: function() {
         this.initializeChips();
         this.initializeDropdown();
+        $('select').material_select(
+          this.handleProjectClick.bind(this)
+        );
       },
       initializeDropdown: function() {
         $('.dropdown-button').dropdown({
@@ -71,8 +77,10 @@
         var tags = this.state.selectedTags.map(function(d) {
           return {tag: d};
         });
-        var options = this.state.options.map(function(d) {
-          return {[d]: null};
+        var options = this.state.tags.map(function(d) {
+          var tmp = {};
+          tmp[d] = null;
+          return tmp;
         }).reduce(function(acc, x) {
           for (var key in x) acc[key] = x[key];
           return acc;
@@ -109,36 +117,80 @@
           selectedTags: selectedNew
         });
       },
-      handleYearClick: function(d, e) {
-        var newSpan = d;
+      handleIntervalClick: function(d, e) {
+        var newInterval = d;
         this.setState({
-          selectedSpan: newSpan
+          selectedInterval: newInterval
         });
       },
-      renderLink: function(selectedTags, selectedSpan) {
-        var tagStr = selectedTags.reduce(function(a,b) {return a+" "+b}, "");
-        var spanStr = selectedSpan;
-        return tagStr + ' '+ spanStr
+      handleProjectClick: function() {
+        var d = $('select').val();
+        var newProject = d;
+        this.setState({
+          selectedProject: newProject
+        });
+      },
+      renderLink: function(selectedTags, selectedInterval, selectedProject) {
+        var strHulls = 'strHulls=' + function() {
+          if(selectedProject==='None') {
+            return selectedTags.reduce(function(a,b) {
+              return (a==='') ? b: a+','+b}, '');
+          }
+          return '';
+        }();
+        var strInterval = 'strInterval=' + selectedInterval;
+        var strProject = 'strProject=' + selectedProject;
+        return strHulls+' & '+strInterval+' & '+strProject;
       },
       render: function() {
         return (
           <div className="row">
             <div className="card-panel">
-              <h5>Choose Ships</h5>
-              <div className="chips"></div>
-              <a className='dropdown-button btn' href='#' data-activates='dropdown1'>{'span: '+this.state.selectedSpan}</a>
-              <ul id='dropdown1' className='dropdown-content'> {
-                this.state.yearChoices.map(function(d, i) {
-                  return (<li><a href="#!" onClick={this.handleYearClick.bind(this, d)}>{d}</a></li>)
-                }.bind(this))
-              }</ul>
-              <p>{this.renderLink(this.state.selectedTags, this.state.selectedSpan)}</p>
+              <div className="row">
+                <h5>(Choose Hulls</h5>
+                <div className="col l12 m12 s12">
+                  <div className="chips"></div>
+                </div>
+                <h5>... Or Choose A Project)</h5>
+                <div className="input-field col l12 m12 s12">
+                  <select>
+                    <option value="" disabled selected>Choose project</option>
+                    {
+                      this.state.projects.map(function(d,i) {
+                        return (<option value={d}>{d}</option>);
+                      })
+                    }
+                  </select>
+                  <label>Note: If you choose a project, the app will ignore your selected hulls</label>
+                </div>
+                <div className="col l12 m12 s12">
+                  <h5>... And Choose Time Interval</h5>
+                  <a className='dropdown-button btn' href='#' data-activates='dropdown1'>
+                    {'Interval: '+this.state.selectedInterval}
+                  </a>
+                  <ul id='dropdown1' className='dropdown-content'>
+                  {
+                    this.state.intervalChoices.map(function(d, i) {
+                      return (<li><a href="#!" onClick={this.handleIntervalClick.bind(this, d)}>
+                      {d + (d==='1' ? ' Year' : ' Years')}
+                      </a></li>)
+                    }.bind(this))
+                  }
+                  </ul>
+                </div>
+              </div>
+              <div className='row'>
+                <h5>Link</h5>
+                <p>{this.renderLink(this.state.selectedTags, this.state.selectedInterval, this.state.selectedProject)}</p>
+              </div>
             </div>
           </div>
         );
       }
     });
-    ReactDOM.render(<App/>, document.getElementById('root'));
+    ReactDOM.render(<App hulls={['CVN 78', 'SSBN 730', 'SSN 774']}
+                         projects={['None', 'A1B', 'A4W', 'S6G', 'S6W', 'S8G', 'S9G']}
+                         intervals={['1', '2', '5', '10']}/>, document.getElementById('root'));
   </script>
 
 </body>

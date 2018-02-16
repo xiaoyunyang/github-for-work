@@ -1,8 +1,10 @@
-# github-for-work
+# Serverless Webapp
 
 > serverless webapp that works without Internet.
 
-Needs to run on Internet Explorer 11.
+Constraints
+* Needs to run on Internet Explorer 11.
+* Need to run without internet
 
 ## Built with
 
