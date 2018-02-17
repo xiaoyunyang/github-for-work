@@ -57,9 +57,8 @@
       componentDidMount: function() {
         this.initializeChips();
         this.initializeDropdown();
-        $('select').material_select(
-          this.handleProjectClick.bind(this)
-        );
+        this.initializeSelect();
+        Materialize.updateTextFields();
       },
       initializeDropdown: function() {
         $('.dropdown-button').dropdown({
@@ -72,6 +71,14 @@
           alignment: 'left', // Displays dropdown with edge aligned to the left of button
           stopPropagation: false // Stops event propagation
         });
+      },
+      initializeSelect: function() {
+        $('#select-project').material_select(
+          this.handleProjectClick.bind(this)
+        );
+        $('#select-interval').material_select(
+          this.handleIntervalClick.bind(this)
+        );
       },
       initializeChips: function() {
         var tags = this.state.selectedTags.map(function(d) {
@@ -117,20 +124,27 @@
           selectedTags: selectedNew
         });
       },
-      handleIntervalClick: function(d, e) {
-        var newInterval = d;
-        this.setState({
-          selectedInterval: newInterval
-        });
-      },
       handleProjectClick: function() {
-        var d = $('select').val();
+        var d = $('#select-project').val();
         var newProject = d;
         this.setState({
           selectedProject: newProject
         });
       },
-      renderLink: function(selectedTags, selectedInterval, selectedProject) {
+      handleIntervalClick: function() {
+        var d = $('#select-interval').val();
+        var newInterval = d;
+        this.setState({
+          selectedInterval: newInterval
+        });
+      },
+      handleIntervalClickBtn: function(d, e) {
+        var newInterval = d;
+        this.setState({
+          selectedInterval: newInterval
+        });
+      },
+      getLink: function(selectedTags, selectedInterval, selectedProject) {
         var strHulls = 'strHulls=' + function() {
           if(selectedProject==='None') {
             return selectedTags.reduce(function(a,b) {
@@ -142,6 +156,94 @@
         var strProject = 'strProject=' + selectedProject;
         return strHulls+' & '+strInterval+' & '+strProject;
       },
+      renderProjectInput: function(projects) {
+        return (
+          <div className='input-field col l6 m6 s12'>
+            <select id='select-project'>
+              <option value='None' disabled selected>Choose project</option>
+              {
+                projects.map(function(d,i) {
+                  return (<option value={d}>{d}</option>);
+                })
+              }
+            </select>
+            <label>Choose Project</label>
+          </div>
+        );
+      },
+      renderIntervalInput: function(intervalChoices) {
+        return (
+          <div className="input-field col l6 m6 s12">
+            <select id='select-interval'>
+              {
+                intervalChoices.map(function(d, i) {
+                  return (
+                    <option value={d}>
+                      {d + (d==='1' ? ' Year' : ' Years')}
+                    </option>)
+                })
+              }
+            </select>
+            <label>Choose Interval</label>
+          </div>
+        );
+      },
+      renderIntervalInputBtn: function() {
+        return (
+          <div className="col l12 m12 s12">
+            <h5>Choose Time Interval</h5>
+            <a className='dropdown-button btn' href='#' data-activates='dropdown1'>
+              {'Interval: '+this.state.selectedInterval + (this.state.selectedInterval==='1' ? ' Year' : ' Years')}
+            </a>
+            <ul id='dropdown1' className='dropdown-content'>
+            {
+              this.state.intervalChoices.map(function(d, i) {
+                return (<li><a href="#!" onClick={this.handleIntervalClickBtn.bind(this, d)}>
+                {d + (d==='1' ? ' Year' : ' Years')}
+                </a></li>)
+              }.bind(this))
+            }
+            </ul>
+          </div>
+        );
+      },
+      renderLink: function(link) {
+        return (
+          <div className="row">
+            <div className="input-field col l11 m11 s11">
+                <input value={link} id="link" type="text" className="validate" />
+                <label className="active" for="link">Link</label>
+            </div>
+            <div className="col l1 m1 s1">
+              <a className="btn-floating btn-large waves-effect waves-light">
+                <i className="material-icons">arrow_forward</i>
+              </a>
+            </div>
+          </div>
+        );
+      },
+      render: function() {
+        return(
+          <div className="row">
+            <div className="col l12 m12 s12">
+              <h5>Choose Hulls</h5>
+              <div className="chips"></div>
+            </div>
+            {this.renderProjectInput(this.state.projects)}
+            {this.renderIntervalInput(this.state.intervalChoices)}
+            {this.renderIntervalInputBtn()}
+            <div className="col l12 m12 s12">
+              <p>Note: If you choose a project, the app will ignore your selected hulls</p>
+            </div>
+            <div className="col l12 m12 s12">
+              {
+                this.renderLink(this.getLink(this.state.selectedTags, this.state.selectedInterval, this.state.selectedProject))
+              }
+            </div>
+          </div>
+        );
+      }
+        /*
       render: function() {
         return (
           <div className="row">
@@ -151,22 +253,24 @@
                 <div className="col l12 m12 s12">
                   <div className="chips"></div>
                 </div>
+              </div>
+              <div className="input-field col l12 m12 s12">
                 <h5>... Or Choose A Project)</h5>
-                <div className="input-field col l12 m12 s12">
-                  <select>
-                    <option value="" disabled selected>Choose project</option>
-                    {
-                      this.state.projects.map(function(d,i) {
-                        return (<option value={d}>{d}</option>);
-                      })
-                    }
-                  </select>
-                  <label>Note: If you choose a project, the app will ignore your selected hulls</label>
-                </div>
+                <select>
+                  <option value="" disabled selected>Choose project</option>
+                  {
+                    this.state.projects.map(function(d,i) {
+                      return (<option value={d}>{d}</option>);
+                    })
+                  }
+                </select>
+                <label>Note: If you choose a project, the app will ignore your selected hulls</label>
+              </div>
+              <div className="row">
                 <div className="col l12 m12 s12">
                   <h5>... And Choose Time Interval</h5>
                   <a className='dropdown-button btn' href='#' data-activates='dropdown1'>
-                    {'Interval: '+this.state.selectedInterval}
+                    {'Interval: '+this.state.selectedInterval + (this.state.selectedInterval==='1' ? ' Year' : ' Years')}
                   </a>
                   <ul id='dropdown1' className='dropdown-content'>
                   {
@@ -179,6 +283,7 @@
                   </ul>
                 </div>
               </div>
+
               <div className='row'>
                 <h5>Link</h5>
                 <p>{this.renderLink(this.state.selectedTags, this.state.selectedInterval, this.state.selectedProject)}</p>
@@ -186,7 +291,7 @@
             </div>
           </div>
         );
-      }
+      }*/
     });
     ReactDOM.render(<App hulls={['CVN 78', 'SSBN 730', 'SSN 774']}
                          projects={['None', 'A1B', 'A4W', 'S6G', 'S6W', 'S8G', 'S9G']}
