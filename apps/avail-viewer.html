@@ -243,55 +243,6 @@
           </div>
         );
       }
-        /*
-      render: function() {
-        return (
-          <div className="row">
-            <div className="card-panel">
-              <div className="row">
-                <h5>(Choose Hulls</h5>
-                <div className="col l12 m12 s12">
-                  <div className="chips"></div>
-                </div>
-              </div>
-              <div className="input-field col l12 m12 s12">
-                <h5>... Or Choose A Project)</h5>
-                <select>
-                  <option value="" disabled selected>Choose project</option>
-                  {
-                    this.state.projects.map(function(d,i) {
-                      return (<option value={d}>{d}</option>);
-                    })
-                  }
-                </select>
-                <label>Note: If you choose a project, the app will ignore your selected hulls</label>
-              </div>
-              <div className="row">
-                <div className="col l12 m12 s12">
-                  <h5>... And Choose Time Interval</h5>
-                  <a className='dropdown-button btn' href='#' data-activates='dropdown1'>
-                    {'Interval: '+this.state.selectedInterval + (this.state.selectedInterval==='1' ? ' Year' : ' Years')}
-                  </a>
-                  <ul id='dropdown1' className='dropdown-content'>
-                  {
-                    this.state.intervalChoices.map(function(d, i) {
-                      return (<li><a href="#!" onClick={this.handleIntervalClick.bind(this, d)}>
-                      {d + (d==='1' ? ' Year' : ' Years')}
-                      </a></li>)
-                    }.bind(this))
-                  }
-                  </ul>
-                </div>
-              </div>
-
-              <div className='row'>
-                <h5>Link</h5>
-                <p>{this.renderLink(this.state.selectedTags, this.state.selectedInterval, this.state.selectedProject)}</p>
-              </div>
-            </div>
-          </div>
-        );
-      }*/
     });
     ReactDOM.render(<App hulls={['CVN 78', 'SSBN 730', 'SSN 774']}
                          projects={['None', 'A1B', 'A4W', 'S6G', 'S6W', 'S8G', 'S9G']}
