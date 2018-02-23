@@ -19,3 +19,6 @@ Constraints
 * [Unsplash](https://unsplash.com/) for the images
 
 * [JSXTransformer has been deprecated](https://reactjs.org/blog/2015/06/12/deprecating-jstransform-and-react-tools.html), but we still need this for our app.
+
+TODOs
+* [ ] Set up apps based on [this vanilla html](https://raw.githubusercontent.com/reactjs/reactjs.org/master/static/html/single-file-example.html) to take advantage of babel for transpiling ES6.

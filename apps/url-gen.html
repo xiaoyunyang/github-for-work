@@ -52,7 +52,7 @@
         return {id: this.props.default}
       },
       handleChange: function(event) {
-        this.setState({id: event.target.value.toLowerCase()})
+        this.setState({id: event.target.value})
       },
       render: function() {
         return(
@@ -61,7 +61,7 @@
               <h5>{this.props.page}</h5>
               <input type="text" value={this.state.id} placeholder={"e.g., "+this.props.default} onChange={this.handleChange}/>
               <i className="fas fa-external-link-alt"></i>
-              <a href={this.props.base+this.state.id} target="_blank">{"   "+this.props.base+this.state.id}</a>
+              <a href={this.props.base+this.state.id} target="_blank">{"   "+this.props.base+this.state.id.toLowerCase()}</a>
             </span>
           </div>
         );

@@ -50,8 +50,16 @@
         );
       },
       handleClick: function() {
-        var newData = $(this.props.id).val();
+        var newData = $('#'+this.props.id).val();
         this.props.setState(newData)
+      },
+      renderUnits: function(data, units) {
+        if(!units) return '';
+
+        if (typeof(data) === 'number') {
+          return data > 1 ? units + 's' : units;
+        }
+        return units;
       },
       render: function() {
         return (
@@ -60,8 +68,11 @@
               <option value='None' disabled selected>{this.props.label}</option>
               {
                 this.props.choices.map(function(d,i) {
-                  return (<option value={d}>{d}</option>);
-                })
+                  return (
+                    <option value={d}>
+                      {d + ' ' + this.renderUnits(d, this.props.units)}
+                    </option>);
+                }.bind(this))
               }
             </select>
             <label>{this.props.label}</label>
@@ -69,11 +80,61 @@
         );
       },
     });
+    var InputTags = React.createClass({
+      componentDidMount: function() {
+        var tags = this.props.selectedTags.map(function(d) {
+          return {tag: d};
+        });
+        var options = this.props.tags.map(function(d) {
+          var tmp = {};
+          tmp[d] = null;
+          return tmp;
+        }).reduce(function(acc, x) {
+          for (var key in x) acc[key] = x[key];
+          return acc;
+        }, {});
+
+        $('#'+this.props.id).material_chip({
+          data: tags,
+          placeholder: this.props.label,
+          secondaryPlaceholder: this.props.hint,
+          autocompleteOptions: {
+            data: options,
+            limit: Infinity,
+            minLength: 1
+          }
+        });
+        $('#'+this.props.id).on('chip.add', function(e, chip){
+          this.handleAddTag(chip.tag);
+        }.bind(this));
+        $('#'+this.props.id).on('chip.delete', function(e, chip){
+          this.handleDeleteTag(chip.tag);
+        }.bind(this));
+      },
+      handleAddTag: function(tag) {
+        var selectedNew = this.props.selectedTags.concat(tag);
+        this.props.setState(selectedNew);
+      },
+      handleDeleteTag: function(tag) {
+        var selectedNew = this.props.selectedTags.filter(function(d){
+          return d !== tag;
+        });
+        this.props.setState(selectedNew);
+      },
+      render: function() {
+        return (
+          <div className="col l12 m12 s12">
+            <label>{this.props.label}</label>
+            <div className="chips" id={this.props.id}></div>
+          </div>
+        );
+      }
+    });
     var App = React.createClass({
       getInitialState: function() {
         return {
-          tags: this.props.hulls,
-          selectedTags: [this.props.hulls[0]],
+          hulls: this.props.hulls,
+          selectedHulls: [this.props.hulls[0]],
           intervalChoices: this.props.intervals,
           selectedInterval: this.props.intervals[0],
           projects: this.props.projects,
@@ -81,9 +142,7 @@
         };
       },
       componentDidMount: function() {
-        this.initializeChips();
         this.initializeDropdown();
-        this.initializeSelect();
         Materialize.updateTextFields();
       },
       initializeDropdown: function() {
@@ -98,82 +157,16 @@
           stopPropagation: false // Stops event propagation
         });
       },
-      initializeSelect: function() {
-        $('#select-project').material_select(
-          this.handleProjectClick.bind(this)
-        );
-        $('#select-interval').material_select(
-          this.handleIntervalClick.bind(this)
-        );
-      },
-      initializeChips: function() {
-        var tags = this.state.selectedTags.map(function(d) {
-          return {tag: d};
-        });
-        var options = this.state.tags.map(function(d) {
-          var tmp = {};
-          tmp[d] = null;
-          return tmp;
-        }).reduce(function(acc, x) {
-          for (var key in x) acc[key] = x[key];
-          return acc;
-        }, {});
-
-        $('.chips').material_chip({
-          data: tags,
-          placeholder: 'Enter a tag',
-          secondaryPlaceholder: '+Tag',
-          autocompleteOptions: {
-            data: options,
-            limit: Infinity,
-            minLength: 1
-          }
-        });
-        $('.chips').on('chip.add', function(e, chip){
-          this.handleAddTag(chip.tag);
-        }.bind(this));
-        $('.chips').on('chip.delete', function(e, chip){
-          this.handleDeleteTag(chip.tag);
-        }.bind(this));
-      },
-      handleAddTag: function(tag) {
-        var selectedNew = this.state.selectedTags.concat(tag);
-        this.setState({
-          selectedTags: selectedNew
-        });
-      },
-      handleDeleteTag: function(tag) {
-        var selectedNew = this.state.selectedTags.filter(function(d){
-          return d !== tag;
-        });
-        this.setState({
-          selectedTags: selectedNew
-        });
-      },
-      handleProjectClick: function() {
-        var d = $('#select-project').val();
-        var newProject = d;
-        this.setState({
-          selectedProject: newProject
-        });
-      },
-      handleIntervalClick: function() {
-        var d = $('#select-interval').val();
-        var newInterval = d;
-        this.setState({
-          selectedInterval: newInterval
-        });
-      },
       handleIntervalClickBtn: function(d, e) {
         var newInterval = d;
         this.setState({
           selectedInterval: newInterval
         });
       },
-      getLink: function(selectedTags, selectedInterval, selectedProject) {
+      getLink: function(selectedHulls, selectedInterval, selectedProject) {
         var strHulls = 'strHulls=' + function() {
           if(selectedProject==='None') {
-            return selectedTags.reduce(function(a,b) {
+            return selectedHulls.reduce(function(a,b) {
               return (a==='') ? b: a+','+b}, '');
           }
           return '';
@@ -219,10 +212,14 @@
       render: function() {
         return(
           <div className="row">
-            <div className="col l12 m12 s12">
-              <h5>Choose Hulls</h5>
-              <div className="chips"></div>
-            </div>
+            <InputTags
+                id='select-hulls'
+                label='Add Hulls'
+                hint='+Hull'
+                tags={this.state.hulls}
+                selectedTags={this.state.selectedHulls}
+                setState={ds => this.setState({selectedHulls: ds})}
+            />
             <InputDropdown
                 id='select-project'
                 label='Choose Project'
@@ -233,6 +230,7 @@
                 id='select-interval'
                 label='Choose Interval'
                 choices={this.state.intervalChoices}
+                units={'year'}
                 setState={d => this.setState({selectedInterval: d})}
             />
             {this.renderIntervalInputBtn()}
@@ -241,7 +239,7 @@
             </div>
             <div className="col l12 m12 s12">
               {
-                this.renderLink(this.getLink(this.state.selectedTags, this.state.selectedInterval, this.state.selectedProject))
+                this.renderLink(this.getLink(this.state.selectedHulls, this.state.selectedInterval, this.state.selectedProject))
               }
             </div>
           </div>
@@ -250,7 +248,7 @@
     });
     ReactDOM.render(<App hulls={['CVN 78', 'SSBN 730', 'SSN 774']}
                          projects={['None', 'A1B', 'A4W', 'S6G', 'S6W', 'S8G', 'S9G']}
-                         intervals={['1', '2', '5', '10']}/>, document.getElementById('root'));
+                         intervals={[1, 2, 5, 10]}/>, document.getElementById('root'));
   </script>
 
 </body>
