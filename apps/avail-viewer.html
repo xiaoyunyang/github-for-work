@@ -43,6 +43,32 @@
   <script type="text/javascript" src="../assets/js/materialize.js"></script>
   <script type="text/jsx" src="topnav.jsx"></script>
   <script type="text/jsx">
+    var InputDropdown = React.createClass({
+      componentDidMount: function() {
+        $('#'+this.props.id).material_select(
+          this.handleClick.bind(this)
+        );
+      },
+      handleClick: function() {
+        var newData = $(this.props.id).val();
+        this.props.setState(newData)
+      },
+      render: function() {
+        return (
+          <div className='input-field col l6 m6 s12'>
+            <select id={this.props.id}>
+              <option value='None' disabled selected>{this.props.label}</option>
+              {
+                this.props.choices.map(function(d,i) {
+                  return (<option value={d}>{d}</option>);
+                })
+              }
+            </select>
+            <label>{this.props.label}</label>
+          </div>
+        );
+      },
+    });
     var App = React.createClass({
       getInitialState: function() {
         return {
@@ -156,38 +182,6 @@
         var strProject = 'strProject=' + selectedProject;
         return strHulls+' & '+strInterval+' & '+strProject;
       },
-      renderProjectInput: function(projects) {
-        return (
-          <div className='input-field col l6 m6 s12'>
-            <select id='select-project'>
-              <option value='None' disabled selected>Choose project</option>
-              {
-                projects.map(function(d,i) {
-                  return (<option value={d}>{d}</option>);
-                })
-              }
-            </select>
-            <label>Choose Project</label>
-          </div>
-        );
-      },
-      renderIntervalInput: function(intervalChoices) {
-        return (
-          <div className="input-field col l6 m6 s12">
-            <select id='select-interval'>
-              {
-                intervalChoices.map(function(d, i) {
-                  return (
-                    <option value={d}>
-                      {d + (d==='1' ? ' Year' : ' Years')}
-                    </option>)
-                })
-              }
-            </select>
-            <label>Choose Interval</label>
-          </div>
-        );
-      },
       renderIntervalInputBtn: function() {
         return (
           <div className="col l12 m12 s12">
@@ -229,8 +223,18 @@
               <h5>Choose Hulls</h5>
               <div className="chips"></div>
             </div>
-            {this.renderProjectInput(this.state.projects)}
-            {this.renderIntervalInput(this.state.intervalChoices)}
+            <InputDropdown
+                id='select-project'
+                label='Choose Project'
+                choices={this.state.projects}
+                setState={d => this.setState({selectedProject: d})}
+            />
+            <InputDropdown
+                id='select-interval'
+                label='Choose Interval'
+                choices={this.state.intervalChoices}
+                setState={d => this.setState({selectedInterval: d})}
+            />
             {this.renderIntervalInputBtn()}
             <div className="col l12 m12 s12">
               <p>Note: If you choose a project, the app will ignore your selected hulls</p>
